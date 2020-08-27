@@ -88,7 +88,6 @@ export class State implements IState {
 
         if (typeof section === 'undefined' || section === 'all') {
             var _state: any = this.controllerState;
-            _state.circuits = this.circuits.getExtended();
             _state.temps = this.temps.getExtended();
             _state.equipment = this.equipment.getExtended();
             _state.pumps = this.pumps.getExtended();
@@ -167,6 +166,56 @@ export class State implements IState {
             clockMode: sys.board.valueMaps.clockModes.transform(sys.general.options.clockMode) || {},
             clockSource: sys.board.valueMaps.clockSources.transformByName(sys.general.options.clockSource) || {}
         };
+    }
+    public emitAllEquipmentChanges() {
+        // useful for setting initial states of external clients like MQTT, SmartThings, Hubitat, etc
+        state.temps.hasChanged = true;
+        state.equipment.hasChanged = true;
+        for (let i = 0; i < state.circuits.length; i++) {
+            state.circuits.getItemByIndex(i).hasChanged = true;
+        }
+        for (let i = 0; i < state.features.length; i++) {
+            state.features.getItemByIndex(i).hasChanged = true;
+        }
+        for (let i = 0; i < state.temps.bodies.length; i++) {
+            state.temps.bodies.getItemByIndex(i).hasChanged = true;
+        }
+        for (let i = 0; i < state.circuits.length; i++) {
+            state.circuits.getItemByIndex(i).hasChanged = true;
+        }
+        for (let i = 0; i < state.pumps.length; i++) {
+            state.pumps.getItemByIndex(i).hasChanged = true;
+        }
+
+        for (let i = 0; i < state.valves.length; i++) {
+            state.valves.getItemByIndex(i).hasChanged = true;
+        }
+        for (let i = 0; i < state.heaters.length; i++) {
+            state.heaters.getItemByIndex(i).hasChanged = true;
+        }
+
+        for (let i = 0; i < state.chlorinators.length; i++) {
+            state.chlorinators.getItemByIndex(i).hasChanged = true;
+        }
+        for (let i = 0; i < state.circuitGroups.length; i++) {
+            state.circuitGroups.getItemByIndex(i).hasChanged = true;
+        }
+        for (let i = 0; i < state.lightGroups.length; i++) {
+            state.lightGroups.getItemByIndex(i).hasChanged = true;
+        }
+        for (let i = 0; i < state.virtualCircuits.length; i++) {
+            state.virtualCircuits.getItemByIndex(i).hasChanged = true;
+        }
+        for (let i = 0; i < state.covers.length; i++) {
+            state.covers.getItemByIndex(i).hasChanged = true;
+        }
+        for (let i = 0; i < state.schedules.length; i++) {
+            state.schedules.getItemByIndex(i).hasChanged = true;
+        }
+        for (let i = 0; i < state.chemControllers.length; i++) {
+            state.chemControllers.getItemByIndex(i).hasChanged = true;
+        }
+        state.emitEquipmentChanges();
     }
     public emitEquipmentChanges() {
         if (typeof (webApp) !== 'undefined' && webApp) { this._dirtyList.emitChanges(); }
@@ -1263,13 +1312,13 @@ export class ChemControllerState extends EqState {
     public set orpLevel(val: number) { this.setDataVal('orpLevel', val); }
     public get saltLevel(): number { return this.data.saltLevel; }
     public set saltLevel(val: number) { this.setDataVal('saltLevel', val); }
-/*     public get waterFlow(): number { return this.data.waterFlow; }
-    public set waterFlow(val: number) {
-        if (this.waterFlow !== val) {
-            this.data.waterFlow = sys.board.valueMaps.chemControllerWaterFlow.transform(val);
-            this.hasChanged = true;
-        }
-    } */
+    /*     public get waterFlow(): number { return this.data.waterFlow; }
+        public set waterFlow(val: number) {
+            if (this.waterFlow !== val) {
+                this.data.waterFlow = sys.board.valueMaps.chemControllerWaterFlow.transform(val);
+                this.hasChanged = true;
+            }
+        } */
     public get acidTankLevel(): number { return this.data.acidTankLevel; }
     public set acidTankLevel(val: number) { this.setDataVal('acidTankLevel', val); }
     public get orpTankLevel(): number { return this.data.orpTankLevel; }
@@ -1281,13 +1330,13 @@ export class ChemControllerState extends EqState {
             this.hasChanged = true;
         }
     } */
-/*     public get status2(): number { return this.data.status2; }
-    public set status2(val: number) {
-        if (this.status2 !== val) {
-            this.data.status2 = sys.board.valueMaps.intelliChemStatus2.transform(val);
-            this.hasChanged = true;
-        }
-    } */
+    /*     public get status2(): number { return this.data.status2; }
+        public set status2(val: number) {
+            if (this.status2 !== val) {
+                this.data.status2 = sys.board.valueMaps.intelliChemStatus2.transform(val);
+                this.hasChanged = true;
+            }
+        } */
     /*     public get alarms(): number { return typeof (this.data.alarms) !== 'undefined' ? this.data.alarms.val : undefined; }
         public set alarms(val: number) {
             if (this.alarms !== val) {
@@ -1444,28 +1493,28 @@ export class ChemControllerStateAlarms extends EqState {
         }
     }
     public get phTank(): number { return typeof this.data.phTank === 'undefined' ? undefined : this.data.phTank.val; }
-    public set phTank(val: number) { 
+    public set phTank(val: number) {
         if (this.phTank !== val) {
             this.data.phTank = sys.board.valueMaps.chemControllerAlarms.transform(val);
             this.hasChanged = true;
         }
     }
     public get orpTank(): number { return typeof this.data.orpTank === 'undefined' ? undefined : this.data.orpTank.val; }
-    public set orpTank(val: number) { 
+    public set orpTank(val: number) {
         if (this.orpTank !== val) {
             this.data.orpTank = sys.board.valueMaps.chemControllerAlarms.transform(val);
             this.hasChanged = true;
         }
     }
     public get probeFault(): number { return typeof this.data.probeFault === 'undefined' ? undefined : this.data.probeFault.val; }
-    public set probeFault(val: number) { 
+    public set probeFault(val: number) {
         if (this.probeFault !== val) {
             this.data.probeFault = sys.board.valueMaps.chemControllerAlarms.transform(val);
             this.hasChanged = true;
         }
     }
     public get comms(): number { return typeof this.data.comms === 'undefined' ? undefined : this.data.comms.val; }
-    public set comms(val: number) { 
+    public set comms(val: number) {
         if (this.comms !== val) {
             this.data.comms = sys.board.valueMaps.chemControllerStatus.transform(val);
             this.hasChanged = true;
